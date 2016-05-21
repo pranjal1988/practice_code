@@ -13,24 +13,24 @@ import java.util.concurrent.SynchronousQueue;
 public class HospitalDemo extends Object {
 
 	//private List synchedPatientsList;
-	private Object synchedPatientsList ;
+	private Object objectLock ;
 	private ConcurrentLinkedQueue<String> queue;
 	
 	public HospitalDemo() {
 		// create a new synchronized list to be used
 		//synchedPatientsList = Collections.synchronizedList(new LinedList());
 		queue = new ConcurrentLinkedQueue<String>();
-		synchedPatientsList = new Object();
+		objectLock = new Object();
 	}
 
 	// method used to remove an element from the list
 	public String callPatientForConsult() throws InterruptedException {
-		synchronized (synchedPatientsList) {
+		synchronized (objectLock) {
 			// while the list is empty, wait
 			while (queue.isEmpty()) {
 				System.out.println("No patients to consult for doctor " + Thread.currentThread().getName() + " at time " + System.currentTimeMillis());
 				System.out.println("Doctor " + Thread.currentThread().getName()  +" Waiting...");
-				synchedPatientsList.wait();
+				objectLock.wait();
 				System.out.println("Wait over for "+ Thread.currentThread().getName() + " at time " + System.currentTimeMillis() );
 			}
 			String element = (String) queue.poll();
@@ -41,7 +41,7 @@ public class HospitalDemo extends Object {
 	// method to add an element in the list
 	public void admitPatientForConsult(String element) throws InterruptedException {
 		Random rd = new Random();
-		synchronized (synchedPatientsList) {
+		synchronized (objectLock) {
 			// add an element and notify all that an element exists
 			queue.offer(element);
 			System.out.println("R1) New Patient:'" + element + "'");
@@ -49,7 +49,7 @@ public class HospitalDemo extends Object {
 			Thread.sleep(5000);
 			System.out.println("R2) admited patient " + element + " in " + 5000*w8Multiplier + " miliSec at time " + System.currentTimeMillis());
 			System.out.println("R3) notifying doctors! at time " + System.currentTimeMillis());
-			synchedPatientsList.notifyAll();
+			objectLock.notifyAll();
 		}
 		System.out.println("R4) Patient send to waiting room... at time " + System.currentTimeMillis());
 	}
